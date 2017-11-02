@@ -74,13 +74,24 @@
 (defn rawtaddr [btc-addr] (blockchain-call (format "rawtaddr/%s" btc-addr)))
 
 (defn blocks 
+  "all blocks in bitcoin as a lazy seq"
   ([] (blocks 0 (getblockcount) ))
   ([i n] (if (< i n) 
            (lazy-seq (cons (block-of i) (blocks (inc i) n)))
            '())))
            
-(defn transactions []
-  (mapcat #(% "blocks") (blocks))
-  )
+(defn tx-of [blk] (mapcat #(% "tx") (blk "blocks")))
+
+(defn transactions 
+  "all transactions in bitcoin as a lazy seq"
+  ([] (transactions (blocks)))
+  ([blks]
+    (if 
+      (empty? blks)
+      []
+      (lazy-seq 
+        (concat 
+          (tx-of (first blks)) (transactions (rest blks)))))))
+  
   
 
