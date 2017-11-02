@@ -1,10 +1,10 @@
 # bchain
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojure API for blockchain.info
 
 ## Usage
 
-FIXME
+
 
 ## License
 
