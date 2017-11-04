@@ -1,5 +1,5 @@
 (ns bchain.core
-  "Functions using the blockchain.info API"
+  "blockchain.info API"
   (:require [clj-http.client :as client]
             [clojure.data.json :as json]))
 
@@ -8,16 +8,18 @@
      (println "dbg:" '~body "=" x#)
      x#))
 
-(defn blockchain-call [arg]
-  (let [res (client/get (format "https://blockchain.info/%s" arg))]
+(defn http-call [addr arg]
+  (let [res (client/get (format "%s/%s" addr arg))]
     (if (= (:status res) 200) 
       (-> res :body json/read-str)
       (throw (IllegalStateException. (pr-str res))))))
 
+(defn blockchain-call [arg] (http-call "https://blockchain.info" arg))
+
+(defn blockchain-api-call [arg] (http-call "https://api.blockchain.info" arg))
 
 (defn exchange-rates [] (blockchain-call "ticker"))
 
-(defn dollar-rate [] (((exchange-rates) "USD") "last"))
 
 (defn tobtc [value to-currency]
   (blockchain-call (format "tobtc?currency=%s&value=%s" to-currency value)))
@@ -73,6 +75,38 @@
 (defn rawtx [tx] (blockchain-call (format "rawtx/%s" tx)))
 (defn rawtaddr [btc-addr] (blockchain-call (format "rawtaddr/%s" btc-addr)))
 
+  
+
+(defn stats [] (blockchain-api-call "stats"))
+
+(defn reduce-args [args] 
+  (reduce 
+    (fn [acc [k v]]
+      (format
+        "%s%s=%s"
+        (if acc 
+          (format "%s&" acc)
+          "") k v)) 
+    nil 
+    (partition 2 args)))
+
+(defn charts [type & args]
+  (assert (-> args count even?))
+  (blockchain-api-call (format "charts/%s" type)))
+
+(defn pools 
+  ([timespan] 
+    (blockchain-api-call (format "pools?timespan=%s" timespan)))
+  ([]
+    (blockchain-api-call "pools")))
+
+(comment 
+  Below is not part of the blockchain.info API, it provides lazy seqs to some blockchain datastructures such as blocks and transactions.
+)
+
+(defn dollar-rate [] (((exchange-rates) "USD") "last"))
+
+
 (defn blocks 
   "all blocks in bitcoin as a lazy seq"
   ([] (blocks 0 (getblockcount) ))
@@ -80,7 +114,7 @@
            (lazy-seq (cons (block-of i) (blocks (inc i) n)))
            '())))
            
-(defn tx-of [blk] (mapcat #(% "tx") (blk "blocks")))
+(defn- tx-of [blk] (mapcat #(% "tx") (blk "blocks")))
 
 (defn transactions 
   "all transactions in bitcoin as a lazy seq"
@@ -92,6 +126,4 @@
       (lazy-seq 
         (concat 
           (tx-of (first blks)) (transactions (rest blks)))))))
-  
-  
 
