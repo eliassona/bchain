@@ -9,6 +9,8 @@
      (println "dbg:" '~body "=" x#)
      x#))
 
+(def satoshi 0.00000001)
+
 (defn http-call [addr arg]
   (let [res (client/get (format "%s/%s" addr arg))]
     (if (= (:status res) 200) 
@@ -19,7 +21,7 @@
 
 (defn blockchain-api-call [arg] (http-call "https://api.blockchain.info" arg))
 
-(defn exchange-rates [] (blockchain-call "ticker"))
+(defn ticker [] (blockchain-call "ticker"))
 
 
 (defn tobtc [value to-currency]
@@ -56,17 +58,11 @@
   marketcap
   hashrate
   rejected)
-  
-  
-
 
 (defn _24hrprice [] (blockchain-query-call "24hrprice"))
 (defn _24hrtransactioncount  [] (blockchain-query-call "24hrtransactioncount "))
 (defn _24hrbtcsent [] (blockchain-query-call "24hrbtcsent"))
-
-
-(defn block-of [height] (blockchain-call (format "block-height/%s?format=json" height)))
-
+(defn block-height [height] (blockchain-call (format "block-height/%s?format=json" height)))
 (defn latestblock [] (blockchain-call "latestblock"))
 
 (defn rawblock 
@@ -74,13 +70,11 @@
   ([block-hash frmt] (blockchain-call (format "rawblock/%s?format=%s" block-hash frmt))))
 
 (defn rawtx [tx] (blockchain-call (format "rawtx/%s" tx)))
-(defn rawtaddr [btc-addr] (blockchain-call (format "rawtaddr/%s" btc-addr)))
-
-  
+(defn rawaddr [btc-addr] (blockchain-call (format "rawaddr/%s" btc-addr)))
 
 (defn stats [] (blockchain-api-call "stats"))
 
-(defn reduce-args [args] 
+(defn- reduce-args [args] 
   (reduce 
     (fn [acc [k v]]
       (format
@@ -105,24 +99,24 @@
   Below is not part of the blockchain.info API, it provides lazy seqs to some blockchain datastructures such as blocks and transactions.
 )
 
-(defn rate-of [x]
+(defn- rate-of [x]
   (let [k (key x)]
-    `(defn ~(symbol k) [] ((exchange-rates) ~k))))
+    `(defn ~(symbol k) [] ((ticker) ~k))))
 
 (defmacro def-rates []
   "Define functions for all currencies, i.e (USD) for US-dollars"
   `(do
-     ~@(map rate-of (exchange-rates))))
+     ~@(map rate-of (ticker))))
 
 (def-rates)
 
-(defn rate-symbols [] (into #{} (map symbol (keys (exchange-rates)))))
+(defn rate-symbols- [] (into #{} (map symbol (keys (ticker)))))
 
 (defn blocks 
   "all blocks in bitcoin as a lazy seq"
   ([] (blocks 0 (getblockcount) ))
   ([i n] (if (< i n) 
-           (lazy-seq (cons (block-of i) (blocks (inc i) n)))
+           (lazy-seq (cons (block-height i) (blocks (inc i) n)))
            '())))
            
 (defn- tx-of [blk] (mapcat #(% "tx") (blk "blocks")))
