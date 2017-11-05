@@ -1,5 +1,6 @@
 (ns bchain.core
   "blockchain.info API"
+  (:use [clojure.pprint])
   (:require [clj-http.client :as client]
             [clojure.data.json :as json]))
 
@@ -104,8 +105,18 @@
   Below is not part of the blockchain.info API, it provides lazy seqs to some blockchain datastructures such as blocks and transactions.
 )
 
-(defn dollar-rate [] (((exchange-rates) "USD") "last"))
+(defn rate-of [x]
+  (let [k (key x)]
+    `(defn ~(symbol k) [] ((exchange-rates) ~k))))
 
+(defmacro def-rates []
+  "Define functions for all currencies, i.e (USD) for US-dollars"
+  `(do
+     ~@(map rate-of (exchange-rates))))
+
+(def-rates)
+
+(defn rate-symbols [] (into #{} (map symbol (keys (exchange-rates)))))
 
 (defn blocks 
   "all blocks in bitcoin as a lazy seq"
