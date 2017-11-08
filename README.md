@@ -1,6 +1,6 @@
 # bchain
 
-A Clojure API for blockchain.info
+A Clojure wrapper API for blockchain.info
 
 ## Usage
 Add the following line to your leinigen dependencies:
@@ -34,7 +34,7 @@ nil
 How many btc was sent to this address in USD (current market value!).
 ```clojure
 
-=> (* satoshi ((USD) "last") ((rawaddr genesis-addr) "total_received")) 
+=> (* satoshi (USD-last) ((rawaddr genesis-addr) "total_received")) 
 502702.563783512
 ```
 
