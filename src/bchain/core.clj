@@ -21,14 +21,12 @@
 
 (defn- reduce-args [args] 
   (reduce 
-    (fn [acc [k v]]
-      (format
-        "%s%s=%s"
-        (if acc 
-          (format "%s&" acc)
-          "") k v)) 
-    nil 
-    (partition 2 args)))
+    (fn [acc [k v]] 
+      (format "%s%s=%s" 
+        (if (empty? acc)
+          "?"
+          (format "%s&" acc)) k v))
+    "" (partition 2 args)))
 
 (def satoshi 0.00000001)
 
@@ -140,7 +138,7 @@
 
 (defn charts [type & args]
   (assert (-> args count even?))
-  (blockchain-api-call (format "charts/%s" type)))
+  (blockchain-api-call (format "charts/%s%s" type (reduce-args args))))
 
 (defn pools 
   ([timespan] 
