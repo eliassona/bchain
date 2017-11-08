@@ -31,8 +31,8 @@ nil
 "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
 ```
 
+How many btc was sent to this address in USD (current market value!).
 ```clojure
-how many btc was sent to this address in USD (current market value!).
 
 => (* satoshi ((USD) "last") ((rawaddr genesis-addr) "total_received")) 
 502702.563783512
