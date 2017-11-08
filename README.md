@@ -38,6 +38,11 @@ How many btc was sent to this address in USD (current market value!).
 502702.563783512
 ```
 
+To see a list of API functions:
+```clojure
+=> (-> *ns* ns-publics keys sort)
+(AUD AUD-buy AUD-last AUD-sell AUD-symbol BRL BRL-buy BRL-last BRL-sell BRL-symbol CAD CAD-buy CAD-last CAD-sell CAD-symbol CHF CHF-buy CHF-last CHF-sell CHF-symbol CLP CLP-buy CLP-last CLP-sell CLP-symbol CNY CNY-buy CNY-last CNY-sell CNY-symbol DKK DKK-buy DKK-last DKK-sell DKK-symbol EUR EUR-buy EUR-last EUR-sell EUR-symbol GBP GBP-buy GBP-last GBP-sell GBP-symbol HKD HKD-buy HKD-last HKD-sell HKD-symbol INR INR-buy INR-last INR-sell INR-symbol ISK ISK-buy ISK-last ISK-sell ISK-symbol JPY JPY-buy JPY-last JPY-sell JPY-symbol KRW KRW-buy KRW-last KRW-sell KRW-symbol NZD NZD-buy NZD-last NZD-sell NZD-symbol PLN PLN-buy PLN-last PLN-sell PLN-symbol RUB RUB-buy RUB-last RUB-sell RUB-symbol SEK SEK-buy SEK-last SEK-sell SEK-symbol SGD SGD-buy SGD-last SGD-sell SGD-symbol THB THB-buy THB-last THB-sell THB-symbol TWD TWD-buy TWD-last TWD-sell TWD-symbol USD USD-buy USD-last USD-sell USD-symbol _24hrbtcsent _24hrprice _24hrtransactioncount addressbalance addressfirstseen addresstohash addrpubkey avgtxnumber avgtxsize avgtxvalue bcperblock block-height blockchain-query-call blocks charts dbg def-address-lookup def-query def-rates eta getblockcount getdifficulty getreceivedbyaddress getsentbyaddress hashestowin hashpubkey hashrate hashtoaddress interval latestblock latesthash marketcap nextretarget pools probability pubkeyaddr rate-symbols- rawaddr rawblock rawtx rejected satoshi stats ticker tobtc totalbc transactions txfee txresult txtotalbtcinput txtotalbtcoutput unconfirmedcount)
+```
 
 ## License
 
