@@ -30,7 +30,7 @@
 
 (def satoshi 0.00000001)
 
-(defn- http-call [addr arg]
+(defn http-call [addr arg]
   (let [res (client/get (format "%s/%s" addr arg))]
     (if (= (:status res) 200) 
       (-> res :body json/read-str)

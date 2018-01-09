@@ -28,7 +28,3 @@
 
 (defn txStat [address] (shapeshift-call (format "txStat/%s" address)))
 
-
-
-(defn- growth [money interest days]
-  (reduce (fn [acc _] (* acc interest)) money (range days)))
