@@ -5,8 +5,6 @@
             [bchain.core :refer [dbg rawaddr SEK SEK-last USD USD-last satoshi blocks]])
   )
 
-
-
 (defmulti balance identity)
 
 (defmulti convert 
@@ -49,23 +47,20 @@
      ~(do-convert from to expr)
      ~(do-convert to from `(/ 1 ~expr))))
 
+(defn rate-of [m] (m "rate"))
 
 (defmethod convert :default [from to]
   (let [cp @conversion-pair
         btw (first (intersection (cp from) (cp to)))]
-    (eval (def-convert from to (* ((convert from btw) "rate") ((convert btw to) "rate"))))
-    (convert from to)
+    (if btw
+    (do 
+      (eval (def-convert from to (* (rate-of (convert from btw)) (rate-of (convert btw to)))))
+      (convert from to))
+    (throw (IllegalStateException. (format "Can't convert %s to %s" from to))))
     ))
-  
 
-
-
-
-
-
-(def-convert "SEK" "USD" (/ (USD-last) (SEK-last)))
-(def-convert "BTC" "USD" (USD-last))
 (def-convert "BTC" "SEK" (SEK-last))
+(def-convert "BTC" "USD" (USD-last))
 
 
 (def units (atom #{}))
