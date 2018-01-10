@@ -1,4 +1,6 @@
 (ns bchain.balance
+  (:use [clojure.pprint]
+        [clojure.set])
   (:require [bchain.shape :as ss]
             [bchain.core :refer [dbg rawaddr SEK SEK-last USD USD-last satoshi blocks]])
   )
@@ -14,18 +16,52 @@
         :ss
         [from to]))))
 
+(def conversion-pair (atom {}))
+
+(defn update-pair! [from to]
+ (swap! conversion-pair (fn [v] (update v from #(if % (conj % to) #{to}))))) 
+
+(defn add-ss-rates! []
+  (let [sc (ss/coin-set)
+        all-comb (for [x sc
+                       y sc
+                       :when (not= x y)]
+        [x y])]
+    (doseq [[x y] all-comb]
+      (update-pair! x y))))
+
+(add-ss-rates!)
+
 (defmethod convert :ss [from to]
   (update (ss/rate from to) "rate" read-string))
 
 (defn pair-it [value from to]
   {"pair" (format "%s_%s" from to) "rate" value})
 
-(defmacro def-convert [from to expr]
-  `(do 
+(defn do-convert [from to expr]
+  `(do
+     (update-pair! ~from ~to)
      (defmethod convert [~from ~to] [from# to#]
-       (pair-it ~expr from# to#))
-     (defmethod convert [~to ~from] [to# from#]
-       (pair-it (/ 1 ~expr) from# to#))))
+          (pair-it ~expr from# to#))))
+
+(defmacro def-convert [from to expr]
+  `(do
+     ~(do-convert from to expr)
+     ~(do-convert to from `(/ 1 ~expr))))
+
+
+(defmethod convert :default [from to]
+  (let [cp @conversion-pair
+        btw (first (intersection (cp from) (cp to)))]
+    (eval (def-convert from to (* ((convert from btw) "rate") ((convert btw to) "rate"))))
+    (convert from to)
+    ))
+  
+
+
+
+
+
 
 (def-convert "SEK" "USD" (/ (USD-last) (SEK-last)))
 (def-convert "BTC" "USD" (USD-last))
