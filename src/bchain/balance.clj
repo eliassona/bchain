@@ -61,7 +61,7 @@
     ))
 
 (defmacro def-fiat-currencies []
-    `(do ~@(map (fn [k#] `(def-convert ~k# "BTC" (-> (ticker) (get ~k#) (get "last")))) (keys (ticker)))))
+    `(do ~@(map (fn [k#] `(def-convert "BTC" ~k# (-> (ticker) (get ~k#) (get "last")))) (keys (ticker)))))
 
 (def-fiat-currencies)
 
