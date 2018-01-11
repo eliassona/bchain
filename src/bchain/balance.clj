@@ -2,7 +2,8 @@
   (:use [clojure.pprint]
         [clojure.set])
   (:require [bchain.shape :as ss]
-            [bchain.core :refer [dbg rawaddr SEK SEK-last USD USD-last satoshi blocks]])
+            [bchain.core :refer [dbg rawaddr SEK SEK-last USD USD-last satoshi blocks ticker]]
+            [bchain.coinmarketcap :refer [btg->btc]])
   )
 
 (defmulti balance identity)
@@ -59,8 +60,10 @@
     (throw (IllegalStateException. (format "Can't convert %s to %s" from to))))
     ))
 
-(def-convert "BTC" "SEK" (SEK-last))
-(def-convert "BTC" "USD" (USD-last))
+(defmacro def-fiat-currencies []
+    `(do ~@(map (fn [k#] `(def-convert ~k# "BTC" (-> (ticker) (get ~k#) (get "last")))) (keys (ticker)))))
+
+(def-fiat-currencies)
 
 
 (def units (atom #{}))
