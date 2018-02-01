@@ -1,4 +1,5 @@
 {:deps
  {clj-http {:mvn/version "3.7.0"}
-  org.clojure/data.json {:mvn/version "0.2.6"}}}
+  org.clojure/data.json {:mvn/version "0.2.6"}
+  redis.clients/jedis {:mvn/version "2.9.0"}}}
 
