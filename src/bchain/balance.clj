@@ -3,7 +3,8 @@
         [clojure.set])
   (:require [bchain.shape :as ss]
             [bchain.core :refer [dbg rawaddr SEK SEK-last USD USD-last satoshi blocks ticker]]
-            [bchain.coinmarketcap :refer [btg->btc]])
+            [bchain.coinmarketcap :refer [btg->btc]]
+            [clojure.data.json :as json])
   (:import [redis.clients.jedis Jedis])
   )
 
@@ -97,7 +98,7 @@
 (defn all-balance []
   (into {} (map (fn [u] 
                   (let [v (dbg (balance u))]
-                    [(:unit v) (-> v :value str)])) @units)))
+                    [(:unit v) (-> v :value)])) @units)))
 
 
 (def jedis (Jedis.))
@@ -108,7 +109,17 @@
   (let [id (.incr jedis "id")
         t (.multi jedis)
         k (format "event:%s" id)]
-     (.hmset t k (all-balance))
+     (.set t k (json/json-str (all-balance)))
      (.zadd t "events" (double (System/currentTimeMillis)) k)     
      (.exec t))))
+
+(def wait-time (*  60 60 1000))
+
+(defn store-proc []
+  (while true
+    (try
+      (store!)
+      (Thread/sleep wait-time)
+      (catch Exception e
+        (.printStackTrace e)))))
 
