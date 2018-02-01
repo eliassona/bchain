@@ -70,6 +70,11 @@
 
 (def units (atom #{}))
 
+
+(defn get-units []
+  @units
+  )
+
 (defmacro def-balance [unit expr]
   `(do 
      (defmethod balance ~unit [unit#] {:value ~expr, :unit ~unit})
@@ -103,22 +108,33 @@
 
 (def jedis (Jedis.))
 
+
+(defn conversions-of [units]
+  (map (fn [[x y]] (convert x y) )
+       (for [x units
+           y units
+           :when (not= x y)]
+         [x y])))
+
+(defn currency-and-conversions [units]
+  {:currency (all-balance), :conversions (conversions-of units)})
+
 (defn store!
-  ([] (store! jedis))
-  ([jedis]
+  ([units] (store! units jedis))
+  ([units jedis]
   (let [id (.incr jedis "id")
         t (.multi jedis)
         k (format "event:%s" id)]
-     (.set t k (json/json-str (all-balance)))
+     (.set t k (json/json-str (currency-and-conversions units)))
      (.zadd t "events" (double (System/currentTimeMillis)) k)     
      (.exec t))))
 
 (def wait-time (*  60 60 1000))
 
-(defn store-proc []
+(defn store-proc [units]
   (while true
     (try
-      (store!)
+      (store! units)
       (Thread/sleep wait-time)
       (catch Exception e
         (.printStackTrace e)))))
