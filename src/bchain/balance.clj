@@ -4,6 +4,7 @@
   (:require [bchain.shape :as ss]
             [bchain.core :refer [dbg rawaddr SEK SEK-last USD USD-last satoshi blocks ticker]]
             [bchain.coinmarketcap :refer [btg->btc]])
+  (:import [redis.clients.jedis Jedis])
   )
 
 (defmulti balance identity)
@@ -91,4 +92,20 @@
 
 (defn total-balance [to]
   {:value (reduce (fn [acc v] (+ (:value v) acc)) 0 (map #(convert-to (balance %) to) @units)) :unit to})
+
+
+(defn all-balance []
+  (into {} (map (fn [u] 
+                  (let [v (dbg (balance u))]
+                    [(:unit v) (-> v :value str)])) @units)))
+
+(defn store! [jedis]
+  (let [id (.incr jedis "id")
+        t (.multi jedis)
+        k (format "event:%s" id)]
+     (.hmset t k (all-balance))
+     (.zadd t "events" (double (System/currentTimeMillis)) k)     
+     (.exec t)
+    )
+  )
 
