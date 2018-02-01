@@ -99,13 +99,16 @@
                   (let [v (dbg (balance u))]
                     [(:unit v) (-> v :value str)])) @units)))
 
-(defn store! [jedis]
+
+(def jedis (Jedis.))
+
+(defn store!
+  ([] (store! jedis))
+  ([jedis]
   (let [id (.incr jedis "id")
         t (.multi jedis)
         k (format "event:%s" id)]
      (.hmset t k (all-balance))
      (.zadd t "events" (double (System/currentTimeMillis)) k)     
-     (.exec t)
-    )
-  )
+     (.exec t))))
 
