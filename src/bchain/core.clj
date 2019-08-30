@@ -146,6 +146,15 @@
   ([]
     (blockchain-api-call "pools")))
 
+(defn to-time-price [m]
+  (let [time (* (m "x") 1000)
+        price (m "y")]
+    {:time time, :price price}))
+
+(defn historical-price [days]
+  (map to-time-price ((blockchain-call (format "/charts/market-price?timespan=%sdays&format=json" days)) "values")))
+
+
 (comment 
   Below is not part of the blockchain.info API, it provides for example lazy seqs to some blockchain datastructures such as blocks and transactions.
 )
