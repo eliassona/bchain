@@ -7,4 +7,5 @@
                  [clj-http "3.7.0"]
                  [org.clojure/data.json "0.2.6"]
                  [redis.clients/jedis "2.9.0"]
-                 [org.clojure/data.json "0.2.4"]])
+                 [org.clojure/data.json "0.2.4"]
+                 [com.jcraft/jsch "0.1.55"]])

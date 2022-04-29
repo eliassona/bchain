@@ -2,7 +2,9 @@
   "blockchain.info API"
   (:use [clojure.pprint])
   (:require [clj-http.client :as client]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json])
+  (:import [com.jcraft.jsch JSch]
+           [java.io ByteArrayOutputStream]))
 
 (defmacro dbg [body]
   `(let [x# ~body]
@@ -202,3 +204,40 @@
         (concat 
           (tx-of (first blks)) (transactions (rest blks)))))))
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(comment
+"not ordered"  
+{:netty3 "Elapsed time: 278188.280212 msecs"
+ :netty4 "Elapsed time: 263644.679149 msecs"
+ 
+ }
+{:netty3 "Elapsed time: 1333468.578521 msecs"
+ :netty4 "Elapsed time: 1337973.732481 msecs"
+ }
+
+  (time 
+       (doseq [i (range 10000)]
+         (client/get "http://localhost:4500")
+         (Thread/sleep 2)))
+)
