@@ -57,9 +57,12 @@
   )
   
 (def-api getbestblockhash identity)
-(def-api getblockhash identity [index])
 (def-api getblock identity [blockhash verbosity])
 (def-api getblockchaininfo json/read-str)
 (def-api getblockcount read-string)
 (def-api getblockfilter identity [blockhash verbosity])
+(def-api getblockhash identity [index])
+(def-api getblockheader identity [blockhash verbosity])
+(def-api getblockstats identity [hash_or_height stats])
+(def-api getchaintips)
 
