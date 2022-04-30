@@ -34,7 +34,6 @@
 (defn bitcoin-cli [password cmd]
   (umbrel password (format "cd ~/umbrel/bin; docker exec bitcoin bitcoin-cli %s" cmd)))
     
-#_(def bitcoin-cli (partial bitcoin-cli "mypw"))    
 
 (defn format-str-of [n]
   (reduce 
@@ -45,24 +44,26 @@
     nil (range n)))
 
 (defmacro def-api 
-  ([cmd conv-fn args]
+  ([password cmd conv-fn args]
     (let [pw (symbol "password")]
       `(defn ~cmd 
-         (~args (~conv-fn (bitcoin-cli (format ~(format-str-of (inc (count args))) ~(str cmd) ~@args))))
-         (~(vec (concat [pw] args)) (~conv-fn (bitcoin-cli ~pw (format ~(format-str-of (inc (count args))) ~(str cmd) ~@args)))))))
-  ([cmd conv-fn]
-    `(def-api ~cmd ~conv-fn []))
-  ([cmd]
-    `(def-api ~cmd identity))
+         ~args (~conv-fn (bitcoin-cli ~password (format ~(format-str-of (inc (count args))) ~(str cmd) ~@args)))
+         )))
+  ([password cmd conv-fn]
+    `(def-api ~password ~cmd ~conv-fn []))
+  ([password cmd]
+    `(def-api ~password ~cmd identity))
   )
   
-(def-api getbestblockhash identity)
-(def-api getblock identity [blockhash verbosity])
-(def-api getblockchaininfo json/read-str)
-(def-api getblockcount read-string)
-(def-api getblockfilter identity [blockhash verbosity])
-(def-api getblockhash identity [index])
-(def-api getblockheader identity [blockhash verbosity])
-(def-api getblockstats identity [hash_or_height stats])
-(def-api getchaintips)
+(defn create-api [password]
+	(def-api password getbestblockhash identity)
+	(def-api password getblock identity [blockhash verbosity])
+	(def-api password getblockchaininfo json/read-str)
+	(def-api password getblockcount read-string)
+	(def-api password getblockfilter identity [blockhash verbosity])
+	(def-api password getblockhash identity [index])
+	(def-api password getblockheader identity [blockhash verbosity])
+	(def-api password getblockstats identity [hash_or_height stats])
+	(def-api password getchaintips)
+ )
 
