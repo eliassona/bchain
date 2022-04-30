@@ -47,19 +47,19 @@
 (defmacro def-api 
   ([cmd conv-fn args]
     (let [pw (symbol "password")]
-      `(defn ~(symbol cmd) 
-         (~args (~conv-fn (bitcoin-cli (format ~(format-str-of (inc (count args))) ~cmd ~@args))))
-         (~(vec (concat [pw] args)) (~conv-fn (bitcoin-cli ~pw (format ~(format-str-of (inc (count args))) ~cmd ~@args)))))))
+      `(defn ~cmd 
+         (~args (~conv-fn (bitcoin-cli (format ~(format-str-of (inc (count args))) ~(str cmd) ~@args))))
+         (~(vec (concat [pw] args)) (~conv-fn (bitcoin-cli ~pw (format ~(format-str-of (inc (count args))) ~(str cmd) ~@args)))))))
   ([cmd conv-fn]
     `(def-api ~cmd ~conv-fn []))
   ([cmd]
     `(def-api ~cmd identity))
   )
   
-(def-api "getbestblockhash" identity)
-(def-api "getblockhash" identity [index])
-(def-api "getblock" identity [blockhash verbosity])
-(def-api "getblockchaininfo" json/read-str)
-(def-api "getblockcount" read-string)
-(def-api "getblockfilter" identity [blockhash verbosity])
+(def-api getbestblockhash identity)
+(def-api getblockhash identity [index])
+(def-api getblock identity [blockhash verbosity])
+(def-api getblockchaininfo json/read-str)
+(def-api getblockcount read-string)
+(def-api getblockfilter identity [blockhash verbosity])
 
