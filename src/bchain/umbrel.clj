@@ -88,6 +88,6 @@
 	(def-api password getblockhash .trim [index])
 	(def-api password getblockheader identity [blockhash [verbosity]])
 	(def-api password getblockstats identity [hash_or_height [stats]])
-	(def-api password getchaintips)
+	(def-api password getchaintips json/read-str)
  )
 
