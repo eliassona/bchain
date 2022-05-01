@@ -68,7 +68,7 @@
 (defn defn-of [password cmd conv-fn args]
   `(defn 
      ~cmd
-     ~(map (fn [a] (arity-of password cmd conv-fn a)) (args-of args))))
+     ~@(map (fn [a] (arity-of password cmd conv-fn a)) (args-of args))))
 
 (defmacro def-api 
   ([password cmd conv-fn args]
@@ -79,15 +79,15 @@
     `(def-api ~password ~cmd identity))
   )
   
-#_(defn create-api [password]
-	 (def-api password getbestblockhash .trim)
-	 (def-api password getblock identity [blockhash ['verbosity]])
-	 (def-api password getblockchaininfo json/read-str)
-	 (def-api password getblockcount read-string)
-	 (def-api password getblockfilter identity [blockhash ['verbosity]])
-	 (def-api password getblockhash .trim [index])
-	 (def-api password getblockheader identity [blockhash ['verbosity]])
-	 (def-api password getblockstats identity [hash_or_height ['stats]])
-	 (def-api password getchaintips)
-  )
+(defn create-api [password]
+	(def-api password getbestblockhash .trim)
+	(def-api password getblock identity [blockhash [verbosity]])
+	(def-api password getblockchaininfo json/read-str)
+	(def-api password getblockcount read-string)
+	(def-api password getblockfilter identity [blockhash [verbosity]])
+	(def-api password getblockhash .trim [index])
+	(def-api password getblockheader identity [blockhash [verbosity]])
+	(def-api password getblockstats identity [hash_or_height [stats]])
+	(def-api password getchaintips)
+ )
 
