@@ -1,6 +1,7 @@
 (ns bchain.umbrel
   (:use [clojure.pprint])
-  (:require [clojure.data.json :as json])
+  (:require [clojure.data.json :as json]
+            [clojure.repl :refer [source doc]])
   (:import [com.jcraft.jsch JSch]
            [java.io ByteArrayOutputStream]))
 
@@ -68,7 +69,7 @@
 (defn defn-of [password cmd conv-fn args]
   `(defn 
      ~cmd
-     ~@(map (fn [a] (arity-of password cmd conv-fn a)) (args-of args))))
+     ~@(map (partial arity-of password cmd conv-fn) (args-of args))))
 
 (defmacro def-api 
   ([password cmd conv-fn args]
@@ -87,19 +88,19 @@
 	(def-api password getblockcount json/read-str)
 	(def-api password getblockfilter identity [blockhash [verbosity]])
 	(def-api password getblockhash .trim [index])
-	(def-api password getblockheader identity [blockhash [verbosity]])
+	(def-api password getblockheader json/read-str [blockhash [verbosity]])
 	(def-api password getblockstats identity [hash_or_height [stats]])
 	(def-api password getchaintips json/read-str)
-  (def-api password getchaintxstats identity [[nblocks blockhash]])
-  (def-api password getdifficulty read-string)
+  (def-api password getchaintxstats json/read-str [[nblocks blockhash]])
+  (def-api password getdifficulty json/read-str)
   (def-api password getmempoolancestors identity [txid [verbose]])
   (def-api password getmempooldescendants identity [txid [verbose]])
   (def-api password getmempoolentry identity [txid])
   (def-api password getmempoolinfo json/read-str)
-  (def-api password getrawmempool identity [[verbose mempool_sequence]])
+  (def-api password getrawmempool json/read-str [[verbose mempool_sequence]])
   (def-api password gettxout identity [txid n [include_mempool]])
   (def-api password gettxoutproof identity [txids [blockhash]]);["txid",...] ( "blockhash" )
-  (def-api password gettxoutsetinfo identity [[hash_type hash_or_height use_index]])
+  (def-api password gettxoutsetinfo json/read-str [[hash_type hash_or_height use_index]])
   (def-api password preciousblock identity [blockhash])
   (def-api password pruneblockchain identity [height])
   (def-api password savemempool)
@@ -108,12 +109,12 @@
   (def-api password verifytxoutproof identity [proof])
   
 ;  == Control == 
-  (def-api password getmemoryinfo identity [[mode]])
-  (def-api password getrpcinfo identity)
+  (def-api password getmemoryinfo json/read-str [[mode]])
+  (def-api password getrpcinfo json/read-str)
   (def-api password help identity [[command]])
-  (def-api password logging identity [[include_category exclude_category]])
+  (def-api password logging json/read-str [[include_category exclude_category]])
   (def-api password stop)
-  (def-api password uptime)
+  (def-api password uptime json/read-str)
   
 ;  == Generating ==
   (def-api password generateblock identity [output rawtx-txid])
@@ -122,8 +123,8 @@
 
 ;  == Mining ==
   (def-api password getblocktemplate identity [[template_request]])
-  (def-api password getmininginfo identity) 
-  (def-api password getnetworkhashps identity [[nblocks height]])
+  (def-api password getmininginfo json/read-str) 
+  (def-api password getnetworkhashps json/read-str [[nblocks height]])
   (def-api password prioritisetransaction identity [txid dummy fee_delta])
   (def-api password submitblock identity [hexdata [dummy]])
   (def-api password submitheader identity [hexdata])
@@ -132,13 +133,13 @@
   (def-api password addnode identity [node command])
   (def-api password clearbanned identity) 
   (def-api password disconnectnode identity [[address nodeid]])
-  (def-api password getaddednodeinfo identity [[node]])
-  (def-api password getconnectioncount identity) 
-  (def-api password getnettotals identity) 
-  (def-api password getnetworkinfo identity) 
-  (def-api password getnodeaddresses identity [[count network]])
-  (def-api password getpeerinfo identity) 
-  (def-api password listbanned identity) 
+  (def-api password getaddednodeinfo json/read-str [[node]])
+  (def-api password getconnectioncount json/read-str) 
+  (def-api password getnettotals json/read-str) 
+  (def-api password getnetworkinfo json/read-str) 
+  (def-api password getnodeaddresses json/read-str [[count network]])
+  (def-api password getpeerinfo json/read-str) 
+  (def-api password listbanned json/read-str) 
   (def-api password ping identity) 
   (def-api password setban identity [subnet command [bantime absolute]])
   (def-api password setnetworkactive identity [state])
@@ -213,8 +214,8 @@
   (def-api password listsinceblock identity [[blockhash target_confirmations include_watchonly include_removed]])
   (def-api password listtransactions identity [[label count skip include_watchonly]])
   (def-api password listunspent identity [[minconf maxconf addresses include_unsafe query_options]])
-  (def-api password listwalletdir identity) 
-  (def-api password listwallets identity) 
+  (def-api password listwalletdir json/read-str) 
+  (def-api password listwallets json/read-str) 
   (def-api password loadwallet identity [filename [load_on_startup]])
   (def-api password lockunspent identity [unlock]) ;( [{txid:hex,vout:n},...] )
   (def-api password psbtbumpfee identity [txid [ options]])
